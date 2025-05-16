@@ -38,7 +38,9 @@ export default function UserDashboard() {
         <Button onClick={() => setIsModalOpen(true)}>Add Vehicle</Button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border">
+      {vehicles && vehicles.length > 0 ? (
+
+      <div className="overflow-x-auto rounded-lg border border-gray-600">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -91,6 +93,16 @@ export default function UserDashboard() {
           </tbody>
         </table>
       </div>
+      ):(
+        <div className="flex h-40 items-center justify-center rounded-lg border border-gray-300 bg-gray-50">
+          <p className="text-center text-gray-500">
+            
+              No vehicles found
+             
+          </p>
+        </div>
+      )}
+
 
       {vehicles && vehicles.length > 10 && (
         <div className="mt-4 flex justify-center space-x-2">

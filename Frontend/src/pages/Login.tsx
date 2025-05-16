@@ -51,7 +51,7 @@ export default function Login() {
               <div className="text-sm text-red-700">{error}</div>
             </div>
           )}
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="rounded-md space-y-5">
             <Input
               id="email"
               name="email"

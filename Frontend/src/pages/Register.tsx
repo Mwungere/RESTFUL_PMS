@@ -12,6 +12,7 @@ export default function Register() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    plateNumber: '',
     firstName: '',
     lastName: '',
   });
@@ -22,7 +23,7 @@ export default function Register() {
     onSuccess: (data) => {
       setUser(data.user);
       setToken(data.token);
-      navigate('/dashboard');
+      navigate(data.user.role === 'ADMIN' ? '/admin' : '/');
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || 'Failed to register');
@@ -60,7 +61,7 @@ export default function Register() {
               <div className="text-sm text-red-700">{error}</div>
             </div>
           )}
-          <div className="rounded-md shadow-sm space-y-4">
+          <div className="space-y-4">
             <Input
               id="firstName"
               name="firstName"
@@ -91,6 +92,17 @@ export default function Register() {
               onChange={handleChange}
               placeholder="Email address"
               label="Email"
+            />
+            <Input
+              id="plateNumber"
+              name="plateNumber"
+              type="text"
+              autoComplete="plateNumber"
+              required
+              value={formData.plateNumber}
+              onChange={handleChange}
+              placeholder="Plate number"
+              label="Plate Number"
             />
             <Input
               id="password"

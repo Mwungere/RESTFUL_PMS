@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllVehicles, updateVehicleStatus } from '../services/api';
 import { Button } from '../components/Button';
+import toast from 'react-hot-toast';
 
 type Status = 'ALL' | 'PENDING' | 'ACCEPTED' | 'REJECTED';
 const STATUS_OPTIONS: Status[] = ['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'];
@@ -25,7 +26,12 @@ export default function AdminDashboard() {
       updateVehicleStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-vehicles'] });
+      toast.success('Vehicle status updated successfully');
     },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Failed to update vehicle status';
+      toast.error(message);
+    }
   });
 
   const handleStatusChange = (status: Status) => {
@@ -60,82 +66,83 @@ export default function AdminDashboard() {
       </div>
 
       {vehicles && vehicles.length > 0 ? (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  License Plate
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Parking Slot
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Owner
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {vehicles.map((vehicle) => (
-                <tr key={vehicle.id}>
-                  <td className="whitespace-nowrap px-6 py-4">{vehicle.plateNumber}</td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                        vehicle.status === 'ACCEPTED'
+        <div className="overflow-x-auto rounded-lg">
+          <div className="overflow-x-auto rounded-lg border border-gray-300">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    License Plate
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Parking Slot
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Owner
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {vehicles.map((vehicle) => (
+                  <tr key={vehicle.id}>
+                    <td className="whitespace-nowrap px-6 py-4">{vehicle.plateNumber}</td>
+                    <td className="whitespace-nowrap px-6 py-4">
+                      <span
+                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${vehicle.status === 'ACCEPTED'
                           ? 'bg-green-100 text-green-800'
                           : vehicle.status === 'REJECTED'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {vehicle.status}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    {vehicle.slotNumber || '-'}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    {vehicle.owner ? `${vehicle.owner.firstName} ${vehicle.owner.lastName}` : '-'}
-                    <br />
-                    <span className="text-sm text-gray-500">{vehicle.owner?.email}</span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    {vehicle.status === 'PENDING' && (
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="success"
-                          onClick={() =>
-                            statusMutation.mutate({ id: vehicle.id, status: 'ACCEPTED' })
-                          }
-                          isLoading={statusMutation.isPending}
-                          disabled={statusMutation.isPending}
-                        >
-                          Accept
-                        </Button>
-                        <Button
-                          variant="danger"
-                          onClick={() =>
-                            statusMutation.mutate({ id: vehicle.id, status: 'REJECTED' })
-                          }
-                          isLoading={statusMutation.isPending}
-                          disabled={statusMutation.isPending}
-                        >
-                          Reject
-                        </Button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                      >
+                        {vehicle.status}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4">
+                      {vehicle.slotNumber || '-'}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4">
+                      {vehicle.owner ? `${vehicle.owner.firstName} ${vehicle.owner.lastName}` : '-'}
+                      <br />
+                      <span className="text-sm text-gray-500">{vehicle.owner?.email}</span>
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4">
+                      {vehicle.status === 'PENDING' && (
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="success"
+                            onClick={() =>
+                              statusMutation.mutate({ id: vehicle.id, status: 'ACCEPTED' })
+                            }
+                            isLoading={statusMutation.isPending}
+                            disabled={statusMutation.isPending}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() =>
+                              statusMutation.mutate({ id: vehicle.id, status: 'REJECTED' })
+                            }
+                            isLoading={statusMutation.isPending}
+                            disabled={statusMutation.isPending}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <div className="mt-4 flex justify-center space-x-2 pb-4">
             <Button

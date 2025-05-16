@@ -23,7 +23,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'block w-full rounded-md shadow-sm sm:text-sm',
               error
                 ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+                : 'border-gray-100 focus:border-blue-500 focus:ring-blue-500 h-10 outline-none pl-3',
               className
             )}
             {...props}

@@ -223,4 +223,50 @@ exports.updateVehicleStatus = async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
+};
+
+exports.deleteVehicle = async (req, res) => {
+    try {
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id: req.params.id }
+        });
+
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehicle not found' });
+        }
+
+        // Check if the user owns this vehicle
+        if (vehicle.ownerId !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to delete this vehicle' });
+        }
+
+        // If the vehicle was accepted (had a parking slot), update the parking lot
+        if (vehicle.status === 'ACCEPTED') {
+            await prisma.$transaction(async (prisma) => {
+                await prisma.vehicle.delete({
+                    where: { id: vehicle.id }
+                });
+
+                const parkingLot = await prisma.parkingLot.findFirst();
+                if (parkingLot) {
+                    await prisma.parkingLot.update({
+                        where: { id: parkingLot.id },
+                        data: {
+                            usedSlots: Math.max(0, parkingLot.usedSlots - 1)
+                        }
+                    });
+                }
+            });
+        } else {
+            // If the vehicle wasn't accepted, just delete it
+            await prisma.vehicle.delete({
+                where: { id: vehicle.id }
+            });
+        }
+
+        res.json({ message: 'Vehicle deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 }; 
